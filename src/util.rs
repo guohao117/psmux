@@ -145,6 +145,13 @@ pub fn base64_decode(encoded: &str) -> Option<String> {
     String::from_utf8(result).ok()
 }
 
+/// Quote an argument for sending over the control protocol.
+/// Wraps the string in double quotes and escapes any embedded double-quotes.
+pub fn quote_arg(s: &str) -> String {
+    let escaped = s.replace('"', "\\\"");
+    format!("\"{}\"", escaped)
+}
+
 /// Return color name as a string. Uses static strings for Default and
 /// the 256 indexed colors to avoid heap allocations on every cell.
 pub fn color_to_name(c: vt100::Color) -> std::borrow::Cow<'static, str> {

@@ -60,6 +60,15 @@ Cleanup-All
 & $exe new-session -d -s test-cli 2>$null
 Start-Sleep -Seconds 2
 
+# TEST (warm start): new-session with spaces in session name
+& $exe new-session -d -s "space test session" 2>$null
+Start-Sleep -Seconds 1
+$infoOut = & $exe -t "space test session" server-info 2>&1
+$infoStr = ($infoOut | Out-String).Trim()
+Test-Assert "server-info shows full multi-word session name" ($infoStr -match 'session: space test session') "Got: '$infoStr'"
+& $exe kill-session -t "space test session" 2>$null
+Start-Sleep -Milliseconds 200
+
 # ============================================================
 # TEST GROUP 1: server-info / info
 # ============================================================

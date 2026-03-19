@@ -552,14 +552,14 @@ fn run_main() -> io::Result<()> {
                                     if !warm_key.is_empty() {
                                         match crate::session::send_auth_cmd_response(
                                             &warm_addr, &warm_key,
-                                            format!("claim-session {}\n", name).as_bytes(),
+                                            format!("claim-session {}\n", crate::util::quote_arg(&name)).as_bytes(),
                                         ) {
                                             Ok(resp) if resp.contains("OK") => {
                                                 if let Some(ref wn) = window_name {
                                                     let new_key = crate::session::read_session_key(&port_file_base).unwrap_or_default();
                                                     let _ = crate::session::send_auth_cmd(
                                                         &warm_addr, &new_key,
-                                                        format!("rename-window {}\n", wn).as_bytes(),
+                                                        format!("rename-window {}\n", crate::util::quote_arg(wn)).as_bytes(),
                                                     );
                                                 }
                                                 true
@@ -1174,7 +1174,7 @@ fn run_main() -> io::Result<()> {
                     i += 1;
                 }
                 if let Some(name) = new_name {
-                    send_control(format!("rename-session {}\n", name))?;
+                    send_control(format!("rename-session {}\n", crate::util::quote_arg(&name)))?;
                 }
                 return Ok(());
             }
@@ -1563,7 +1563,7 @@ fn run_main() -> io::Result<()> {
                 // cmd_args[0] is the command, cmd_args[1] should be the new name
                 if let Some(name) = cmd_args.get(1) {
                     if !name.starts_with('-') {
-                        send_control(format!("rename-window {}\n", name))?;
+                        send_control(format!("rename-window {}\n", crate::util::quote_arg(name)))?;
                     }
                 }
                 return Ok(());
@@ -1603,7 +1603,7 @@ fn run_main() -> io::Result<()> {
                         }
                     } else {
                         // Send source-file command to server if attached
-                        send_control(format!("source-file {}\n", expanded))?;
+                        send_control(format!("source-file {}\n", crate::util::quote_arg(&expanded)))?;
                     }
                 }
                 return Ok(());
@@ -2408,7 +2408,7 @@ fn run_main() -> io::Result<()> {
                         let _ = stream.set_nodelay(true);
                         let _ = stream.set_read_timeout(Some(Duration::from_millis(3000)));
                         let _ = write!(stream, "AUTH {}\n", warm_key);
-                        let _ = write!(stream, "claim-session {}\n", session_name);
+                        let _ = write!(stream, "claim-session {}\n", crate::util::quote_arg(&session_name));
                         let _ = stream.flush();
                         // Use send_auth_cmd_response pattern: read AUTH
                         // "OK" line first, then read the claim-session
